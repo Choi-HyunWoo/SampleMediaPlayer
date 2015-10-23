@@ -1,8 +1,10 @@
 package com.hw.corcow.samplemediaplayer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -184,6 +186,48 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        /* List */
+        btn = (Button)findViewById(R.id.btn_list);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MusicListActivity.class);
+                startActivityForResult(intent, 0);
+            }
+        });
+
+    }
+
+    /* List */
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if ( requestCode == 0 && resultCode == RESULT_OK ) {
+            String name = data.getStringExtra("name");
+            Uri uri = data.getData();
+            setTitle(name);
+            mPlayer.reset();
+            mState = PlayState.IDLE;
+
+            try {
+                mPlayer.setDataSource(this, uri);
+                mState = PlayState.INITIALIZED;
+
+                mPlayer.prepare();
+                mState = PlayState.PREPARED;
+
+                int max = mPlayer.getDuration();
+                progressView.setMax(max);
+
+                progressView.setProgress(0);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     /* Progress Seekbar Handler */
